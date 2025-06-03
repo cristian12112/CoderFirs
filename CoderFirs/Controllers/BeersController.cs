@@ -1,4 +1,5 @@
 ﻿using CoderFirs.DTOs;
+using CoderFirs.Models;
 using CoderFirs.SqlContext;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -45,6 +46,32 @@ namespace CoderFirs.Controllers
             };
 
             return Ok(beerDto);
+        }
+
+        [Route("~/api/agregar")]
+        [HttpPost]
+
+        public async Task<ActionResult<BeersDtos>> Add(BeersInsertDtos insertDtos)
+        {
+            var beerEntity = new BeerModels()
+            {
+                Name    = insertDtos.Name,
+                BrandId = insertDtos.BrandID,
+                Alcohol = insertDtos.Alcohol
+            };
+            await _storeContext.Beers.AddAsync(beerEntity);
+
+            await _storeContext.SaveChangesAsync();
+
+            var BeerDto = new BeersDtos
+            {
+                Id= beerEntity.BeerId,
+                Name = beerEntity.Name,
+                Alcohol = beerEntity.Alcohol,
+                BrandID = beerEntity.BrandId
+            };
+
+            return CreatedAtAction(nameof(GetBYId), new { id = beerEntity.BeerId }, BeerDto);
         }
     }
 }
